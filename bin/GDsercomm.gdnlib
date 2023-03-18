@@ -1,0 +1,18 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+reloadable=true
+
+[entry]
+
+Windows.64="res://bin/win64/GDSercomm.dll"
+Windows.32="res://bin/win32/GDSercomm.dll"
+X11.64="res://bin/linux64/libGDSercomm.so"
+
+[dependencies]
+
+Windows.64=[ "res://bin/win64/sercomm.dll" ]
+Windows.32=[  ]
+X11.64=[ "res://bin/linux64/libsercomm.so" ]
