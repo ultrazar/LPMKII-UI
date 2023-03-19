@@ -1,0 +1,362 @@
+[gd_scene load_steps=17 format=2]
+
+[ext_resource path="res://Theme/Themes/SteelCore/Default/steel-core.tres" type="Theme" id=1]
+[ext_resource path="res://addons/easy_charts/utilities/containers/canvas/plot_box/grid_box.gd" type="Script" id=2]
+[ext_resource path="res://Scripts/Graph.gd" type="Script" id=3]
+[ext_resource path="res://addons/easy_charts/utilities/containers/canvas/canvas.gd" type="Script" id=4]
+[ext_resource path="res://addons/easy_charts/control_charts/chart.gd" type="Script" id=5]
+[ext_resource path="res://addons/easy_charts/utilities/containers/legend/function_legend.tscn" type="PackedScene" id=6]
+[ext_resource path="res://addons/easy_charts/utilities/containers/data_tooltip/data_tooltip.tscn" type="PackedScene" id=7]
+[ext_resource path="res://addons/easy_charts/utilities/containers/canvas/plot_box/plot_box.gd" type="Script" id=8]
+[ext_resource path="res://Scenes/3dPreview.tscn" type="PackedScene" id=9]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.154, 0.2, 0.1655, 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.196078, 0.258824, 0.211765, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.3724, 0.49, 0.4018, 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.1976, 0.26, 0.2132, 1 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0.12, 0.12, 0.12, 1 )
+
+[sub_resource type="Theme" id=9]
+
+[sub_resource type="StyleBoxEmpty" id=8]
+
+[sub_resource type="StyleBoxFlat" id=5]
+content_margin_left = 15.0
+content_margin_right = 15.0
+content_margin_top = 15.0
+content_margin_bottom = 15.0
+draw_center = false
+
+[node name="Control" type="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+
+[node name="Main" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 0
+
+[node name="Panel" type="Panel" parent="Main"]
+margin_right = 1280.0
+margin_bottom = 33.0
+rect_min_size = Vector2( 0, 33 )
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.15
+custom_styles/panel = SubResource( 1 )
+
+[node name="Top_options" type="Control" parent="Main/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = -5.0
+
+[node name="Credits" type="Label" parent="Main/Panel/Top_options"]
+margin_right = 135.0
+margin_bottom = 22.0
+text = "LPMKII - Megazar21"
+
+[node name="SerialThings" type="Control" parent="Main/Panel/Top_options"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -1024.0
+margin_right = -984.0
+margin_bottom = 40.0
+
+[node name="Portlabel" type="Label" parent="Main/Panel/Top_options/SerialThings"]
+margin_left = 714.0
+margin_right = 752.0
+margin_bottom = 22.0
+text = "Port:"
+
+[node name="Port" type="OptionButton" parent="Main/Panel/Top_options/SerialThings"]
+margin_left = 756.0
+margin_right = 823.0
+margin_bottom = 22.0
+text = "COM5"
+
+[node name="Baudlabel" type="Label" parent="Main/Panel/Top_options/SerialThings"]
+margin_left = 827.0
+margin_right = 896.0
+margin_bottom = 22.0
+text = "Baudrate:"
+
+[node name="Baudoption" type="OptionButton" parent="Main/Panel/Top_options/SerialThings"]
+margin_left = 900.0
+margin_right = 968.0
+margin_bottom = 22.0
+text = "19200"
+
+[node name="Middle" type="HBoxContainer" parent="Main"]
+margin_top = 33.0
+margin_right = 1280.0
+margin_bottom = 445.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Main/Middle"]
+margin_right = 424.0
+margin_bottom = 412.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CansatControl" type="VBoxContainer" parent="Main/Middle/ScrollContainer"]
+margin_right = 424.0
+margin_bottom = 412.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Panel" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_right = 424.0
+margin_bottom = 79.0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 11
+custom_styles/panel = SubResource( 2 )
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Panel"]
+margin_right = 8.0
+margin_bottom = 22.0
+text = "Test"
+
+[node name="Panel2" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 83.0
+margin_right = 424.0
+margin_bottom = 162.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 2 )
+
+[node name="Panel3" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 166.0
+margin_right = 424.0
+margin_bottom = 245.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 2 )
+
+[node name="Panel4" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 249.0
+margin_right = 424.0
+margin_bottom = 328.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 2 )
+
+[node name="Panel5" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 332.0
+margin_right = 424.0
+margin_bottom = 412.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 2 )
+
+[node name="3dPreview" type="ViewportContainer" parent="Main/Middle"]
+margin_left = 428.0
+margin_right = 852.0
+margin_bottom = 412.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="Viewport" type="Viewport" parent="Main/Middle/3dPreview"]
+size = Vector2( 424, 412 )
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="TerrainDemo" parent="Main/Middle/3dPreview/Viewport" instance=ExtResource( 9 )]
+
+[node name="Photos" type="Panel" parent="Main/Middle"]
+margin_left = 856.0
+margin_right = 1280.0
+margin_bottom = 412.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 3 )
+
+[node name="Graph" type="VBoxContainer" parent="Main"]
+margin_top = 445.0
+margin_right = 1280.0
+margin_bottom = 720.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 3 )
+
+[node name="Panel" type="Panel" parent="Main/Graph"]
+margin_right = 1280.0
+margin_bottom = 33.0
+rect_min_size = Vector2( 0, 33 )
+size_flags_horizontal = 3
+custom_styles/panel = SubResource( 4 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Graph/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = -5.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ExportButton" type="Button" parent="Main/Graph/Panel/HBoxContainer"]
+margin_right = 52.0
+margin_bottom = 23.0
+text = "Export"
+
+[node name="Temperature" type="Panel" parent="Main/Graph/Panel/HBoxContainer"]
+margin_left = 56.0
+margin_right = 256.0
+margin_bottom = 23.0
+grow_horizontal = 2
+rect_min_size = Vector2( 200, 0 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Graph/Panel/HBoxContainer/Temperature"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CheckBox" type="CheckBox" parent="Main/Graph/Panel/HBoxContainer/Temperature/HBoxContainer"]
+margin_right = 24.0
+margin_bottom = 24.0
+
+[node name="Label" type="Label" parent="Main/Graph/Panel/HBoxContainer/Temperature/HBoxContainer"]
+margin_left = 28.0
+margin_top = 1.0
+margin_right = 122.0
+margin_bottom = 23.0
+text = "Temperature:"
+
+[node name="Label2" type="Label" parent="Main/Graph/Panel/HBoxContainer/Temperature/HBoxContainer"]
+margin_left = 126.0
+margin_top = 1.0
+margin_right = 158.0
+margin_bottom = 23.0
+text = "24C"
+
+[node name="Chart" type="PanelContainer" parent="Main/Graph"]
+margin_top = 37.0
+margin_right = 1280.0
+margin_bottom = 275.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = SubResource( 9 )
+custom_styles/panel = SubResource( 8 )
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Canvas" type="PanelContainer" parent="Main/Graph/Chart"]
+margin_right = 1280.0
+margin_bottom = 238.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 5 )
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[node name="CanvasContainer" type="VBoxContainer" parent="Main/Graph/Chart/Canvas"]
+margin_left = 15.0
+margin_top = 15.0
+margin_right = 1265.0
+margin_bottom = 223.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 10
+
+[node name="Title" type="Label" parent="Main/Graph/Chart/Canvas/CanvasContainer"]
+visible = false
+margin_right = 994.0
+margin_bottom = 22.0
+text = "{title}"
+align = 1
+
+[node name="DataContainer" type="HBoxContainer" parent="Main/Graph/Chart/Canvas/CanvasContainer"]
+margin_right = 1250.0
+margin_bottom = 208.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 10
+
+[node name="YLabel" type="Label" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer"]
+visible = false
+margin_top = 53.0
+margin_right = 56.0
+margin_bottom = 75.0
+text = "{ylabel}"
+
+[node name="PlotContainer" type="VBoxContainer" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer"]
+margin_right = 1240.0
+margin_bottom = 208.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PlotBox" type="Control" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer/PlotContainer"]
+margin_right = 1240.0
+margin_bottom = 208.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 8 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="GridBox" type="Control" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer/PlotContainer/PlotBox"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": true
+}
+
+[node name="FunctionsBox" type="Control" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer/PlotContainer/PlotBox"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_default_cursor_shape = 3
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Tooltip" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer/PlotContainer/PlotBox" instance=ExtResource( 7 )]
+margin_left = -67.0
+margin_top = -33.0
+margin_right = -47.0
+margin_bottom = -17.0
+
+[node name="XLabel" type="Label" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer/PlotContainer"]
+visible = false
+margin_top = 106.0
+margin_right = 918.0
+margin_bottom = 128.0
+text = "{xlabel}"
+align = 1
+
+[node name="FunctionLegend" parent="Main/Graph/Chart/Canvas/CanvasContainer/DataContainer" instance=ExtResource( 6 )]
+use_parent_material = true
+margin_left = 1250.0
+margin_right = 1250.0
+margin_bottom = 208.0

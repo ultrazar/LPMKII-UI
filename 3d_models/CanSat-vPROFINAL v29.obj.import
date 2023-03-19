@@ -1,0 +1,20 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/CanSat-vPROFINAL v29.obj-083b3a1dea7dc56e822bb05b52174bda.mesh"
+
+[deps]
+
+files=[ "res://.import/CanSat-vPROFINAL v29.obj-083b3a1dea7dc56e822bb05b52174bda.mesh" ]
+
+source_file="res://3d_models/CanSat-vPROFINAL v29.obj"
+dest_files=[ "res://.import/CanSat-vPROFINAL v29.obj-083b3a1dea7dc56e822bb05b52174bda.mesh", "res://.import/CanSat-vPROFINAL v29.obj-083b3a1dea7dc56e822bb05b52174bda.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+octahedral_compression=true
+optimize_mesh_flags=4286
