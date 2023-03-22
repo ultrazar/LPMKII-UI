@@ -167,6 +167,10 @@ _global_script_class_icons={
 config/name="LPMKII-UI"
 config/icon="res://icon.png"
 
+[autoload]
+
+SerialTransceiverProtocol="res://Scripts/SerialTransceiverProtocol.gd"
+
 [display]
 
 window/size/width=1280

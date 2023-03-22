@@ -1,0 +1,10 @@
+[gd_resource type="SpatialMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://3d_models/dirty-metal-texture.jpg" type="Texture" id=1]
+
+[resource]
+resource_name = "Nilón_12_(con_impresora_3D_Formlabs_Fuse_1)"
+albedo_texture = ExtResource( 1 )
+uv1_scale = Vector3( 0.01, 0.01, 0.01 )
+uv1_triplanar = true
+uv2_triplanar = true
