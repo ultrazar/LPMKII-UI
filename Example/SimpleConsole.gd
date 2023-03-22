@@ -93,6 +93,7 @@ func _physics_process(delta):
 			if len(spl) == 2:
 				if spl[0] != "":
 					print(spl[0].length())
+					print("asdasd")
 					update_vars(spl[0])
 				
 				$RichTextLabel.text = spl[0]

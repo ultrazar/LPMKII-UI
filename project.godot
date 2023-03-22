@@ -165,11 +165,12 @@ _global_script_class_icons={
 [application]
 
 config/name="LPMKII-UI"
+run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-SerialTransceiverProtocol="res://Scripts/SerialTransceiverProtocol.gd"
+SerialTransceiverProtocol="*res://Scripts/SerialTransceiverProtocol.gd"
 
 [display]
 

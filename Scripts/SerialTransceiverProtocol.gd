@@ -3,6 +3,7 @@ extends Node
 # Manages the serial communication for the Transceiver and the LPMKII protocol
 
 
+
 const SERCOMM = preload("res://bin/GDsercomm.gdns")
 onready var PORT = SERCOMM.new()
 
@@ -94,14 +95,19 @@ func GetBaudrates():
 func SelectBaudrate(baudrate):
 	set_physics_process(false)
 	PORT.close()
-	if port!=null and baudrate!=0:
-		PORT.open(port,baudrate,1000)
+	if port!=null:
+		print(PORT.open(port,int(baudrate),1000))
+		print(port)
+		print(baudrate)
 	else:
 		breakpoint
 	set_physics_process(true)
 
 func GetPortsList(): #Updates the port list
-	return PORT.list_ports()
+	var list=PORT.list_ports()
+	if len(list) == 1:
+		port=list[0]
+	return list
 
 func SelectPort(PortName):
 	port=PortName

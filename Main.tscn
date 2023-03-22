@@ -219,35 +219,6 @@ margin_right = 52.0
 margin_bottom = 23.0
 text = "Export"
 
-[node name="Temperature" type="Panel" parent="Main/Graph/Panel/HBoxContainer"]
-margin_left = 56.0
-margin_right = 256.0
-margin_bottom = 23.0
-grow_horizontal = 2
-rect_min_size = Vector2( 200, 0 )
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Main/Graph/Panel/HBoxContainer/Temperature"]
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="CheckBox" type="CheckBox" parent="Main/Graph/Panel/HBoxContainer/Temperature/HBoxContainer"]
-margin_right = 24.0
-margin_bottom = 24.0
-
-[node name="Label" type="Label" parent="Main/Graph/Panel/HBoxContainer/Temperature/HBoxContainer"]
-margin_left = 28.0
-margin_top = 1.0
-margin_right = 122.0
-margin_bottom = 23.0
-text = "Temperature:"
-
-[node name="Label2" type="Label" parent="Main/Graph/Panel/HBoxContainer/Temperature/HBoxContainer"]
-margin_left = 126.0
-margin_top = 1.0
-margin_right = 158.0
-margin_bottom = 23.0
-text = "24C"
-
 [node name="Chart" type="PanelContainer" parent="Main/Graph"]
 margin_top = 37.0
 margin_right = 1280.0
@@ -360,5 +331,12 @@ margin_left = 1250.0
 margin_right = 1250.0
 margin_bottom = 208.0
 
+[node name="Timer" type="Timer" parent="Main/Graph"]
+wait_time = 0.2
+autostart = true
+
+[connection signal="item_selected" from="Main/Panel/Top_options/SerialThings/Port" to="." method="_on_Port_item_selected"]
 [connection signal="pressed" from="Main/Panel/Top_options/SerialThings/Port" to="." method="_on_Port_pressed"]
+[connection signal="item_selected" from="Main/Panel/Top_options/SerialThings/Baudoption" to="." method="_on_Baudoption_item_selected"]
 [connection signal="pressed" from="Main/Panel/Top_options/SerialThings/Baudoption" to="." method="_on_Baudoption_pressed"]
+[connection signal="timeout" from="Main/Graph/Timer" to="Main/Graph" method="_on_Timer_timeout"]

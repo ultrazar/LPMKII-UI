@@ -1,15 +1,46 @@
 extends VBoxContainer
 
+# docs: https://github.com/fenix-hub/godot-engine.easy-charts
+
 onready var chart: Chart = $Chart
+onready var ParametersPanel = $Panel/HBoxContainer
+onready var GraphSensorParameter = preload("res://Nodes/GraphSensorParameter.tscn")
 
 # This Chart will plot 3 different functions
 var f1: Function
 var f2: Function
 var f3: Function
 
+"""
+var LPMKII_DATA = {
+	"time": 0.0,
+	"temperature": 0.0,
+	"pressure":0.0,
+	"humidity":0.0,
+	"latitude":0.0,
+	"longitude":0.0,
+	"GPS_altitude":0.0,
+	"satellites":0.0,
+	"lipo_voltage":0.0
+}
+"""
+
+const GraphParametersList = {
+	"temperature":null,
+	"pressure":null,
+	"humidity":null,
+	"GPS_altitude":null
+}
+
 func _ready():
+	for i in GraphParametersList:
+		var instance = GraphSensorParameter.instance()
+		GraphParametersList[i] = instance
+		instance.get_node("HBoxContainer/Label").text = i
+		ParametersPanel.add_child(instance)
+	
 	# Let's create our @x values
-	var x: Array = ArrayOperations.multiply_float(range(-10, 11, 1), 0.5)
+	var x: Array = ArrayOperations.multiply_float(range(0,1, 1), 0.5)
 	
 	# And our y values. It can be an n-size array of arrays.
 	# NOTE: `x.size() == y.size()` or `x.size() == y[n].size()`
@@ -36,7 +67,7 @@ func _ready():
 	
 	# Let's add values to our functions
 	f1 = Function.new(
-		x, y, "Pressure", # This will create a function with x and y values taken by the Arrays 
+		x, y, "Temperature", # This will create a function with x and y values taken by the Arrays 
 						  # we have created previously. This function will also be named "Pressure"
 						  # as it contains 'pressure' values.
 						  # If set, the name of a function will be used both in the Legend
@@ -52,28 +83,35 @@ func _ready():
 															# Line Charts and Area Charts.
 		}
 	)
-	f2 = Function.new(x, y2, "Humidity", { color = Color("#ff6384"), type = Function.Type.LINE, marker = Function.Marker.CROSS, interpolation = Function.Interpolation.SPLINE })
-	f3 = Function.new(x, y3, "CO2", { color = Color.green, type = Function.Type.LINE, marker = Function.Marker.TRIANGLE, interpolation = Function.Interpolation.LINEAR })
+	f2 = Function.new(x, y2, "Pressure", { color = Color("#ff6384"), type = Function.Type.LINE, marker = Function.Marker.CROSS, interpolation = Function.Interpolation.SPLINE })
+	f3 = Function.new(x, y3, "Humidity", { color = Color.green, type = Function.Type.LINE, marker = Function.Marker.TRIANGLE, interpolation = Function.Interpolation.LINEAR })
 	
 	# Now let's plot our data
 	chart.plot([f1, f2, f3], cp)
 	
 	# Uncommenting this line will show how real time data plotting works
-	set_process(false)
+	set_process(true)
 
 
 var new_val: float = 4.5
 
 func _process(delta: float):
-	# This function updates the values of a function and then updates the plot
-	new_val += 5
 	
-	# we can use the `Function.add_point(x, y)` method to update a function
-	f1.add_point(new_val, cos(new_val) * 20)
-	f2.add_point(new_val, (sin(new_val) * 20) + 20)
-	f3.add_point(new_val, (cos(new_val) * -5) - 3)
-	chart.update() # This will force the Chart to be updated
+	pass
 
 
 func _on_CheckButton_pressed():
 	set_process(not is_processing())
+
+
+func _on_Timer_timeout():
+	for i in GraphParametersList:
+		GraphParametersList[i].get_node("HBoxContainer/Data").text = str(SerialTransceiverProtocol.LPMKII_DATA[i])
+	
+	new_val += 5
+	
+	# we can use the `Function.add_point(x, y)` method to update a function
+	f1.add_point(new_val, SerialTransceiverProtocol.LPMKII_DATA["temperature"])
+	f2.add_point(new_val, SerialTransceiverProtocol.LPMKII_DATA["pressure"] / 2000)
+	f3.add_point(new_val, SerialTransceiverProtocol.LPMKII_DATA["humidity"])
+	chart.update() # This will force the Chart to be updated

@@ -1,0 +1,30 @@
+[gd_scene format=2]
+
+[node name="Temperature" type="Panel"]
+margin_left = 56.0
+margin_right = 256.0
+margin_bottom = 23.0
+grow_horizontal = 2
+rect_min_size = Vector2( 200, 0 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CheckBox" type="CheckBox" parent="HBoxContainer"]
+margin_right = 24.0
+margin_bottom = 24.0
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+margin_left = 28.0
+margin_top = 5.0
+margin_right = 114.0
+margin_bottom = 19.0
+text = "Temperature:"
+
+[node name="Data" type="Label" parent="HBoxContainer"]
+margin_left = 118.0
+margin_top = 5.0
+margin_right = 142.0
+margin_bottom = 19.0
+text = "24C"
