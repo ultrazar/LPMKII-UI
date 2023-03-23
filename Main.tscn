@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Theme/Themes/SteelCore/Default/steel-core.tres" type="Theme" id=1]
 [ext_resource path="res://addons/easy_charts/utilities/containers/canvas/plot_box/grid_box.gd" type="Script" id=2]
@@ -22,8 +22,19 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color( 0.3724, 0.49, 0.4018, 1 )
 
-[sub_resource type="StyleBoxFlat" id=3]
-bg_color = Color( 0.1976, 0.26, 0.2132, 1 )
+[sub_resource type="StyleBoxFlat" id=10]
+bg_color = Color( 0.196078, 0.258824, 0.211765, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.3724, 0.49, 0.4018, 1 )
+
+[sub_resource type="StyleBoxFlat" id=11]
+bg_color = Color( 0.172549, 0.172549, 0.172549, 0.54902 )
+
+[sub_resource type="StyleBoxFlat" id=12]
+bg_color = Color( 0.6, 0.6, 0.6, 0 )
 
 [sub_resource type="StyleBoxFlat" id=4]
 bg_color = Color( 0.12, 0.12, 0.12, 1 )
@@ -101,6 +112,16 @@ margin_right = 407.0
 margin_bottom = 22.0
 text = "Select a baudrate"
 
+[node name="Label" type="Label" parent="Main/Panel/Top_options"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -200.0
+margin_right = 200.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.313726, 0.839216, 1, 1 )
+text = "Mission phase 1 - Ascent and descense"
+align = 1
+
 [node name="Middle" type="HBoxContainer" parent="Main"]
 margin_top = 33.0
 margin_right = 1280.0
@@ -114,57 +135,364 @@ margin_right = 424.0
 margin_bottom = 412.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+follow_focus = true
 
 [node name="CansatControl" type="VBoxContainer" parent="Main/Middle/ScrollContainer"]
-margin_right = 424.0
-margin_bottom = 412.0
+margin_right = 412.0
+margin_bottom = 607.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+custom_constants/separation = 4
 
-[node name="Panel" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
-margin_right = 424.0
-margin_bottom = 79.0
+[node name="LegsPanel" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_right = 412.0
+margin_bottom = 70.0
 grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 11
+rect_min_size = Vector2( 0, 70 )
+size_flags_vertical = 3
 custom_styles/panel = SubResource( 2 )
 
-[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Panel"]
-margin_right = 8.0
+[node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/LegsPanel"]
+anchor_right = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/LegsPanel/VBoxContainer"]
+margin_right = 392.0
 margin_bottom = 22.0
-text = "Test"
+text = "LEGS STATE: CLOSED	"
+align = 1
 
-[node name="Panel2" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
+[node name="Button" type="Button" parent="Main/Middle/ScrollContainer/CansatControl/LegsPanel/VBoxContainer"]
+modulate = Color( 1, 0.392157, 0.392157, 1 )
+margin_top = 26.0
+margin_right = 392.0
+margin_bottom = 48.0
+text = "OPEN LEGS"
+
+[node name="CameraPanel" type="PanelContainer" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 74.0
+margin_right = 412.0
+margin_bottom = 270.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 10 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 411.0
+margin_bottom = 195.0
+
+[node name="MarginStart" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer"]
+margin_right = 10.0
+margin_bottom = 194.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer"]
+margin_left = 14.0
+margin_right = 396.0
+margin_bottom = 194.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 5
+
+[node name="MarginStart" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_right = 382.0
+margin_bottom = 5.0
+rect_min_size = Vector2( 10, 5 )
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 10.0
+margin_right = 382.0
+margin_bottom = 32.0
+text = "CAMERA CONTROL"
+align = 1
+
+[node name="EnableCamera" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 37.0
+margin_right = 382.0
+margin_bottom = 71.0
+
+[node name="CheckButton" type="CheckButton" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/EnableCamera"]
+margin_right = 204.0
+margin_bottom = 34.0
+text = "Enable camera module"
+
+[node name="ServoParameter" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 76.0
+margin_right = 382.0
+margin_bottom = 98.0
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ServoParameter"]
+margin_right = 89.0
+margin_bottom = 22.0
+text = "Servo angle: "
+
+[node name="HSlider" type="HSlider" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ServoParameter"]
+margin_left = 93.0
+margin_right = 382.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+value = 1.0
+editable = false
+
+[node name="ImageSize" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 103.0
+margin_right = 382.0
+margin_bottom = 125.0
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ImageSize"]
+margin_right = 82.0
+margin_bottom = 22.0
+text = "Image size:"
+
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ImageSize"]
+margin_left = 86.0
+margin_right = 219.0
+margin_bottom = 22.0
+disabled = true
+text = "QVGA 320 x 240"
+
+[node name="FPM" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 130.0
+margin_right = 382.0
+margin_bottom = 152.0
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/FPM"]
+margin_right = 86.0
+margin_bottom = 22.0
+text = "Capture rate"
+
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/FPM"]
+margin_left = 90.0
+margin_right = 141.0
+margin_bottom = 22.0
+disabled = true
+text = "60s"
+
+[node name="Exposure" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 157.0
+margin_right = 382.0
+margin_bottom = 179.0
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/Exposure"]
+margin_right = 66.0
+margin_bottom = 22.0
+text = "Exposure"
+
+[node name="HSlider" type="HSlider" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/Exposure"]
+margin_left = 70.0
+margin_right = 382.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+value = 50.0
+editable = false
+
+[node name="MarginStart2" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 184.0
+margin_right = 382.0
+margin_bottom = 194.0
+rect_min_size = Vector2( 10, 10 )
+
+[node name="MarginEnd" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/CameraPanel/HBoxContainer"]
+margin_left = 400.0
+margin_right = 410.0
+margin_bottom = 194.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="Localization" type="PanelContainer" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 274.0
+margin_right = 412.0
+margin_bottom = 430.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 10 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 411.0
+margin_bottom = 155.0
+
+[node name="MarginStart" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer"]
+margin_right = 10.0
+margin_bottom = 154.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer"]
+margin_left = 14.0
+margin_right = 396.0
+margin_bottom = 154.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 2
+
+[node name="MarginStart" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer"]
+margin_right = 382.0
+margin_bottom = 10.0
+rect_min_size = Vector2( 10, 10 )
+
+[node name="Title" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer"]
+margin_top = 12.0
+margin_right = 382.0
+margin_bottom = 34.0
+text = "LOCALIZATION"
+align = 1
+
+[node name="Buzzer" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer"]
+margin_top = 36.0
+margin_right = 382.0
+margin_bottom = 70.0
+
+[node name="CheckButton" type="CheckButton" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer/Buzzer"]
+margin_right = 157.0
+margin_bottom = 34.0
+text = "Buzzer beeping"
+
+[node name="LED" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer"]
+margin_top = 72.0
+margin_right = 382.0
+margin_bottom = 106.0
+
+[node name="CheckButton" type="CheckButton" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer/LED"]
+margin_right = 125.0
+margin_bottom = 34.0
+pressed = true
+text = "LED flicker"
+
+[node name="GPS" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer"]
+margin_top = 108.0
+margin_right = 382.0
+margin_bottom = 142.0
+
+[node name="CheckButton" type="CheckButton" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer/GPS"]
+margin_right = 161.0
+margin_bottom = 34.0
+pressed = true
+text = "GPS geolocation"
+
+[node name="MarginStart2" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer/VBoxContainer"]
+margin_top = 144.0
+margin_right = 382.0
+margin_bottom = 154.0
+rect_min_size = Vector2( 10, 10 )
+
+[node name="MarginEnd" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Localization/HBoxContainer"]
+margin_left = 400.0
+margin_right = 410.0
+margin_bottom = 154.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="Transceiver" type="PanelContainer" parent="Main/Middle/ScrollContainer/CansatControl"]
+margin_top = 434.0
+margin_right = 412.0
+margin_bottom = 607.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 10 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 411.0
+margin_bottom = 172.0
+
+[node name="MarginStart" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer"]
+margin_right = 10.0
+margin_bottom = 171.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer"]
+margin_left = 14.0
+margin_right = 396.0
+margin_bottom = 171.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginStart" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
+margin_right = 382.0
+margin_bottom = 10.0
+rect_min_size = Vector2( 10, 10 )
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
+margin_top = 14.0
+margin_right = 382.0
+margin_bottom = 36.0
+text = "TRANSCEIVER CONFIGURATION"
+align = 1
+
+[node name="Label2" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
+margin_top = 40.0
+margin_right = 382.0
+margin_bottom = 79.0
+custom_colors/font_color = Color( 1, 0.239216, 0.239216, 1 )
+text = "ALERT: If the working frequency is changed it will be necessary to manually reconfigure the local transceiver."
+autowrap = true
+
+[node name="Frequency" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
 margin_top = 83.0
-margin_right = 424.0
-margin_bottom = 162.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/panel = SubResource( 2 )
+margin_right = 382.0
+margin_bottom = 105.0
 
-[node name="Panel3" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
-margin_top = 166.0
-margin_right = 424.0
-margin_bottom = 245.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/panel = SubResource( 2 )
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer/Frequency"]
+margin_right = 78.0
+margin_bottom = 22.0
+text = "Frequency:"
 
-[node name="Panel4" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
-margin_top = 249.0
-margin_right = 424.0
-margin_bottom = 328.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/panel = SubResource( 2 )
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer/Frequency"]
+margin_left = 82.0
+margin_right = 165.0
+margin_bottom = 22.0
+text = "433 Mhz"
 
-[node name="Panel5" type="Panel" parent="Main/Middle/ScrollContainer/CansatControl"]
-margin_top = 332.0
-margin_right = 424.0
-margin_bottom = 412.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_styles/panel = SubResource( 2 )
+[node name="TransmissionPower" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
+margin_top = 109.0
+margin_right = 382.0
+margin_bottom = 131.0
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer/TransmissionPower"]
+margin_right = 144.0
+margin_bottom = 22.0
+text = "Transmission Power: "
+
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer/TransmissionPower"]
+margin_left = 148.0
+margin_right = 238.0
+margin_bottom = 22.0
+text = "1000 mW"
+
+[node name="Baudrate" type="HBoxContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
+margin_top = 135.0
+margin_right = 382.0
+margin_bottom = 157.0
+
+[node name="Label" type="Label" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer/Baudrate"]
+margin_right = 95.0
+margin_bottom = 22.0
+text = "OTA baudrate"
+
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer/Baudrate"]
+margin_left = 99.0
+margin_right = 194.0
+margin_bottom = 22.0
+text = "19200 bps"
+
+[node name="MarginStart2" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer/VBoxContainer"]
+margin_top = 161.0
+margin_right = 382.0
+margin_bottom = 171.0
+rect_min_size = Vector2( 10, 10 )
+
+[node name="MarginEnd" type="MarginContainer" parent="Main/Middle/ScrollContainer/CansatControl/Transceiver/HBoxContainer"]
+margin_left = 400.0
+margin_right = 410.0
+margin_bottom = 171.0
+rect_min_size = Vector2( 10, 0 )
 
 [node name="3dPreview" type="ViewportContainer" parent="Main/Middle"]
 margin_left = 428.0
@@ -181,13 +509,159 @@ render_target_update_mode = 3
 
 [node name="TerrainDemo" parent="Main/Middle/3dPreview/Viewport" instance=ExtResource( 9 )]
 
-[node name="RightPanel" type="Panel" parent="Main/Middle"]
+[node name="Simulation data" type="Panel" parent="Main/Middle/3dPreview"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -150.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = 85.0
+custom_styles/panel = SubResource( 11 )
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Main/Middle/3dPreview/Simulation data"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = -5.0
+custom_styles/normal = SubResource( 12 )
+text = "FPS: 60
+Height: 560m
+Speed: -4m/s
+Time: 4.32 min"
+
+[node name="TabContainer" type="TabContainer" parent="Main/Middle"]
 margin_left = 856.0
 margin_right = 1280.0
 margin_bottom = 412.0
 size_flags_horizontal = 3
+tab_align = 0
+
+[node name="Device data" type="Tabs" parent="Main/Middle/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 24.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/panel = SubResource( 3 )
+
+[node name="StartMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
+margin_right = 20.0
+margin_bottom = 388.0
+rect_min_size = Vector2( 20, 20 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
+margin_left = 24.0
+margin_right = 400.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+custom_constants/separation = 10
+
+[node name="StartMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_right = 376.0
+margin_bottom = 5.0
+rect_min_size = Vector2( 20, 5 )
+
+[node name="Battery" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 15.0
+margin_right = 376.0
+margin_bottom = 43.0
+
+[node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/Battery"]
+margin_top = 3.0
+margin_right = 90.0
+margin_bottom = 25.0
+text = "Battery: 3.9V"
+
+[node name="ProgressBar" type="ProgressBar" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/Battery"]
+margin_left = 94.0
+margin_right = 376.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 0, 28 )
+size_flags_horizontal = 3
+value = 89.0
+
+[node name="SolarPanels" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 53.0
+margin_right = 376.0
+margin_bottom = 81.0
+
+[node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/SolarPanels"]
+margin_top = 3.0
+margin_right = 121.0
+margin_bottom = 25.0
+text = "Solar Panels: 4.6V"
+
+[node name="ProgressBar" type="ProgressBar" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/SolarPanels"]
+margin_left = 125.0
+margin_right = 376.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 0, 28 )
+size_flags_horizontal = 3
+value = 89.0
+
+[node name="GPS" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 91.0
+margin_right = 376.0
+margin_bottom = 113.0
+
+[node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS"]
+margin_right = 120.0
+margin_bottom = 22.0
+text = "GPS coordinates: "
+
+[node name="Coordinates" type="LineEdit" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS"]
+margin_left = 124.0
+margin_right = 288.0
+margin_bottom = 22.0
+text = "41.5910764,1.6106681"
+editable = false
+expand_to_text_length = true
+
+[node name="Communication" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 123.0
+margin_right = 376.0
+margin_bottom = 179.0
+
+[node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/Communication"]
+margin_right = 248.0
+margin_bottom = 56.0
+text = "RX Packets Received: 48
+RX Transmission speed: 1843 Bytes/s
+TX Packets Sent: 0"
+
+[node name="DebugData" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 189.0
+margin_right = 376.0
+margin_bottom = 228.0
+
+[node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugData"]
+margin_right = 97.0
+margin_bottom = 39.0
+text = "DEBUG DATA:
+...."
+
+[node name="EndMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 238.0
+margin_right = 376.0
+margin_bottom = 258.0
+rect_min_size = Vector2( 20, 20 )
+
+[node name="EndMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
+margin_left = 404.0
+margin_right = 424.0
+margin_bottom = 388.0
+rect_min_size = Vector2( 20, 20 )
+
+[node name="Images" type="Tabs" parent="Main/Middle/TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 24.0
 
 [node name="Graph" type="VBoxContainer" parent="Main"]
 margin_top = 445.0
