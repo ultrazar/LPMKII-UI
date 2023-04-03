@@ -4,6 +4,8 @@ extends Node
 onready var NodePortList = $Main/Panel/Top_options/SerialThings/Port
 onready var NodeBaudrateList = $Main/Panel/Top_options/SerialThings/Baudoption
 
+func _enter_tree():
+	SerialTransceiverProtocol.set_connected(false)
 
 func _on_Port_pressed():
 	NodePortList.clear()

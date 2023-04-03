@@ -2,6 +2,8 @@ extends VBoxContainer
 
 # docs: https://github.com/fenix-hub/godot-engine.easy-charts
 
+const UPDATE_TIME = 0.5 # in seconds
+
 onready var chart: Chart = $Chart
 onready var ParametersPanel = $Panel/HBoxContainer
 onready var GraphSensorParameter = preload("res://Nodes/GraphSensorParameter.tscn")
@@ -11,20 +13,6 @@ var f1: Function
 var f2: Function
 var f3: Function
 
-"""
-var LPMKII_DATA = {
-	"time": 0.0,
-	"temperature": 0.0,
-	"pressure":0.0,
-	"humidity":0.0,
-	"latitude":0.0,
-	"longitude":0.0,
-	"GPS_altitude":0.0,
-	"satellites":0.0,
-	"lipo_voltage":0.0
-}
-"""
-
 const GraphParametersList = {
 	"temperature":null,
 	"pressure":null,
@@ -32,25 +20,41 @@ const GraphParametersList = {
 	"GPS_altitude":null
 }
 
+var FunctionsDict = {
+}
+
+var cp: ChartProperties = ChartProperties.new()
+
+func reloadFunctions():
+	for i in GraphParametersList:
+		FunctionsDict[i] = Function.new(
+		[], [], i, { 
+			color = GraphParametersList[i].get_node("ColorPicker").color, 
+			marker = Function.Marker.NONE, 
+			type = Function.Type.LINE,
+			interpolation = Function.Interpolation.LINEAR
+		})
+	reloadFunctionsColors()
+
+func reloadFunctionsColors():
+	for i in FunctionsDict:
+		FunctionsDict[i].props.color = GraphParametersList[i].get_node("ColorPicker").color
+
 func _ready():
 	for i in GraphParametersList:
 		var instance = GraphSensorParameter.instance()
 		GraphParametersList[i] = instance
 		instance.get_node("HBoxContainer/Label").text = i
+		instance.get_node("ColorPicker").color = Color8(randi() % 255,randi() % 255,randi() % 255)
 		ParametersPanel.add_child(instance)
-	
-	# Let's create our @x values
-	var x: Array = ArrayOperations.multiply_float(range(0,1, 1), 0.5)
-	
-	# And our y values. It can be an n-size array of arrays.
-	# NOTE: `x.size() == y.size()` or `x.size() == y[n].size()`
-	var y: Array = ArrayOperations.multiply_int(ArrayOperations.cos(x), 20)
-	var y2: Array = ArrayOperations.add_float(ArrayOperations.multiply_int(ArrayOperations.sin(x), 20), 20)
-	var y3: Array = ArrayOperations.add_float(ArrayOperations.multiply_int(ArrayOperations.cos(x), -5), -3)
-	
+		instance.get_node("HBoxContainer/CheckBox").connect("pressed",self,"reloadGraph")
+		instance.get_node("ColorPicker").connect("color_changed",self,"reloadFunctionsColors")
+		
+	$Timer.wait_time = UPDATE_TIME
+	reloadFunctions()
 	# Let's customize the chart properties, which specify how the chart
 	# should look, plus some additional elements like labels, the scale, etc...
-	var cp: ChartProperties = ChartProperties.new()
+
 	cp.colors.frame = Color("#161a1d")
 	cp.colors.background = Color.transparent
 	cp.colors.grid = Color("#283442")
@@ -64,54 +68,46 @@ func _ready():
 	cp.y_scale = 10
 	cp.interactive = true # false by default, it allows the chart to create a tooltip to show point values
 	# and interecept clicks on the plot
+	chart.plot([Function.new([0],[100],"null",{}) ], cp)
 	
-	# Let's add values to our functions
-	f1 = Function.new(
-		x, y, "Temperature", # This will create a function with x and y values taken by the Arrays 
-						  # we have created previously. This function will also be named "Pressure"
-						  # as it contains 'pressure' values.
-						  # If set, the name of a function will be used both in the Legend
-						  # (if enabled thourgh ChartProperties) and on the Tooltip (if enabled).
-		# Let's also provide a dictionary of configuration parameters for this specific function.
-		{ 
-			color = Color("#36a2eb"), 		# The color associated to this function
-			marker = Function.Marker.NONE, 	# The marker that will be displayed for each drawn point (x,y)
-											# since it is `NONE`, no marker will be shown.
-			type = Function.Type.LINE, 		# This defines what kind of plotting will be used, 
-											# in this case it will be an Area Chart.
-			interpolation = Function.Interpolation.STAIR	# Interpolation mode, only used for 
-															# Line Charts and Area Charts.
-		}
-	)
-	f2 = Function.new(x, y2, "Pressure", { color = Color("#ff6384"), type = Function.Type.LINE, marker = Function.Marker.CROSS, interpolation = Function.Interpolation.SPLINE })
-	f3 = Function.new(x, y3, "Humidity", { color = Color.green, type = Function.Type.LINE, marker = Function.Marker.TRIANGLE, interpolation = Function.Interpolation.LINEAR })
+
+const graphTemplateScene = preload("res://Scenes/Chart.tscn")
+
+func reloadGraph():
+	var shownFunctions = []
 	
-	# Now let's plot our data
-	chart.plot([f1, f2, f3], cp)
+	for i in GraphParametersList:
+		if (GraphParametersList[i].get_node("HBoxContainer/CheckBox").pressed):
+			shownFunctions.append(FunctionsDict[i])
 	
-	# Uncommenting this line will show how real time data plotting works
-	set_process(true)
+	if shownFunctions.size() != 0:
+		remove_child($Chart)
+		var newInstance = graphTemplateScene.instance()
+		add_child(newInstance)
+		
 
+		newInstance.plot(shownFunctions,cp)
+		chart = newInstance
 
-var new_val: float = 4.5
+var time = 0
 
-func _process(delta: float):
-	
-	pass
-
-
-func _on_CheckButton_pressed():
-	set_process(not is_processing())
-
+var plotted = false
 
 func _on_Timer_timeout():
 	for i in GraphParametersList:
+		FunctionsDict[i].add_point(time,SerialTransceiverProtocol.LPMKII_DATA[i])
 		GraphParametersList[i].get_node("HBoxContainer/Data").text = str(SerialTransceiverProtocol.LPMKII_DATA[i])
 	
-	new_val += 5
+	time += UPDATE_TIME
 	
-	# we can use the `Function.add_point(x, y)` method to update a function
-	f1.add_point(new_val, SerialTransceiverProtocol.LPMKII_DATA["temperature"])
-	f2.add_point(new_val, SerialTransceiverProtocol.LPMKII_DATA["pressure"] / 2000)
-	f3.add_point(new_val, SerialTransceiverProtocol.LPMKII_DATA["humidity"])
+	if (not plotted):
+		plotted = true
+		reloadGraph()
+	
 	chart.update() # This will force the Chart to be updated
+
+
+func _on_ClearButton_pressed():
+	reloadFunctions()
+	time = 0
+	plotted = false

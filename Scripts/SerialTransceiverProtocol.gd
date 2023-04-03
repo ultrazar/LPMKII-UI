@@ -9,6 +9,30 @@ onready var PORT = SERCOMM.new()
 
 const baudrates = [300,600,1200,2400,4800,9600,14400,19200,28800,38400,57600,115200]
 var port
+var connected : bool = false
+
+enum  {
+	PHASE_AIR,
+	PHASE_STATIONED
+}
+
+var missionPhase = PHASE_AIR
+
+func _ready():
+	self.pause_mode = Node.PAUSE_MODE_PROCESS
+	
+
+
+func set_connected(value : bool):
+	connected = value
+	if value:
+		get_tree().paused = false
+		get_tree().current_scene.get_node("Main/Middle").modulate = Color("ffffff")
+		get_tree().current_scene.get_node("Main/Graph").modulate = Color("ffffff")
+	else:
+		get_tree().paused = true
+		get_tree().current_scene.get_node("Main/Middle").modulate = Color("626262")
+		get_tree().current_scene.get_node("Main/Graph").modulate = Color("626262")
 
 func arduinohex_to_int(hex):
 	#  12345678 --> 0x78563412 
@@ -57,6 +81,7 @@ var LPMKII_DATA = {
 var buffer = ""
 
 func update_vars(hex):
+	set_connected(true)
 	var arr = []
 	if hex.length() != 72:
 		return
@@ -78,21 +103,24 @@ func update_vars(hex):
 
 func _physics_process(delta): 
 	if PORT.get_available()>0:
-		for i in range(PORT.get_available()):
-			var actual = PoolByteArray([PORT.read(true)]).hex_encode()
-			buffer += actual
-			var spl = buffer.split("12345678")
-			if len(spl) == 2:
-				if spl[0] != "":
-					print(spl[0].length())
-					update_vars(spl[0])
-				buffer = spl[1]
+		
+		if missionPhase == PHASE_AIR:
+			for i in range(PORT.get_available()):
+				var actual = PoolByteArray([PORT.read(true)]).hex_encode()
+				buffer += actual
+				var spl = buffer.split("12345678")
+				if len(spl) == 2:
+					if spl[0] != "":
+						print(spl[0].length())
+						update_vars(spl[0])
+					buffer = spl[1]
 
 
 func GetBaudrates():
 	return baudrates
 
 func SelectBaudrate(baudrate):
+	set_connected(false)
 	set_physics_process(false)
 	PORT.close()
 	if port!=null:
@@ -110,4 +138,5 @@ func GetPortsList(): #Updates the port list
 	return list
 
 func SelectPort(PortName):
+	set_connected(false)
 	port=PortName
