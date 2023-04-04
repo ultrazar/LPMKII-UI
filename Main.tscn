@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Theme/Themes/SteelCore/Default/steel-core.tres" type="Theme" id=1]
 [ext_resource path="res://Scenes/Chart.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Graph.gd" type="Script" id=3]
+[ext_resource path="res://icon.png" type="Texture" id=4]
 [ext_resource path="res://Scenes/3dPreview.tscn" type="PackedScene" id=9]
 [ext_resource path="res://Scripts/Main.gd" type="Script" id=10]
 
@@ -39,6 +40,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 1 )
 script = ExtResource( 10 )
+
+[node name="DEBUG_TIMER" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true
 
 [node name="Main" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -104,14 +109,14 @@ margin_right = 407.0
 margin_bottom = 22.0
 text = "Select a baudrate"
 
-[node name="Label" type="Label" parent="Main/Panel/Top_options"]
+[node name="missionPhaseLabel" type="Label" parent="Main/Panel/Top_options"]
 pause_mode = 2
+modulate = Color( 1, 0, 0, 1 )
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -200.0
 margin_right = 200.0
 margin_bottom = 22.0
-custom_colors/font_color = Color( 0.313726, 0.839216, 1, 1 )
 text = "Mission phase 1 - Ascent and descense"
 align = 1
 
@@ -532,6 +537,7 @@ size_flags_horizontal = 3
 tab_align = 0
 
 [node name="Device data" type="Tabs" parent="Main/Middle/TabContainer"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 24.0
@@ -544,13 +550,13 @@ size_flags_vertical = 3
 
 [node name="StartMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
 margin_right = 20.0
-margin_bottom = 388.0
+margin_bottom = 399.0
 rect_min_size = Vector2( 20, 20 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
 margin_left = 24.0
 margin_right = 400.0
-margin_bottom = 388.0
+margin_bottom = 399.0
 size_flags_horizontal = 3
 custom_constants/separation = 10
 
@@ -630,31 +636,54 @@ TX Packets Sent: 0"
 [node name="DebugData" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
 margin_top = 189.0
 margin_right = 376.0
-margin_bottom = 228.0
+margin_bottom = 369.0
 
-[node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugData"]
-margin_right = 97.0
-margin_bottom = 39.0
+[node name="RichTextLabel" type="RichTextLabel" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugData"]
+margin_right = 376.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 0, 180 )
+size_flags_horizontal = 3
 text = "DEBUG DATA:
-...."
+"
+scroll_following = true
 
 [node name="EndMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
-margin_top = 238.0
+margin_top = 379.0
 margin_right = 376.0
-margin_bottom = 258.0
+margin_bottom = 399.0
 rect_min_size = Vector2( 20, 20 )
 
 [node name="EndMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
 margin_left = 404.0
 margin_right = 424.0
-margin_bottom = 388.0
+margin_bottom = 399.0
 rect_min_size = Vector2( 20, 20 )
 
 [node name="Images" type="Tabs" parent="Main/Middle/TabContainer"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 24.0
+
+[node name="ItemList" type="ItemList" parent="Main/Middle/TabContainer/Images"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+items = [ "L_32.jpg (2,8KB)", ExtResource( 4 ), false, "L_13.jpg (37KB)", ExtResource( 4 ), false, "Elemento 3", ExtResource( 4 ), false, "Elemento 4", ExtResource( 4 ), false, "asddsa", ExtResource( 4 ), false ]
+max_text_lines = 2
+auto_height = true
+max_columns = 5
+same_column_width = true
+fixed_column_width = 77
+icon_mode = 0
+fixed_icon_size = Vector2( 58, 58 )
+
+[node name="reloadFilesButton" type="Button" parent="Main/Middle/TabContainer/Images"]
+anchor_left = 0.95
+anchor_top = 0.95
+anchor_right = 0.95
+anchor_bottom = 0.95
+grow_horizontal = 0
+grow_vertical = 0
+text = "RELOAD"
 
 [node name="Graph" type="VBoxContainer" parent="Main"]
 margin_top = 445.0
@@ -698,9 +727,60 @@ text = "CLEAR DATA"
 wait_time = 0.5
 autostart = true
 
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+window_title = "DOWNLOAD FILE COMMAND"
+dialog_text = "Are you sure to download x file?
+It will take "
+
+[node name="WindowDialog" type="WindowDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -300.0
+margin_top = -150.0
+margin_right = 300.0
+margin_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+popup_exclusive = true
+window_title = "DOWNLOADING"
+
+[node name="Label" type="Label" parent="WindowDialog"]
+anchor_left = 0.5
+anchor_top = 0.2
+anchor_right = 0.5
+anchor_bottom = 0.2
+margin_right = 8.0
+margin_bottom = 22.0
+grow_horizontal = 2
+text = "Downloading L_37.jpg file...
+
+375/7422 bytes received  1324 bytes/second"
+align = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="WindowDialog"]
+anchor_left = 0.1
+anchor_top = 0.6
+anchor_right = 0.9
+anchor_bottom = 0.7
+margin_right = 4.0
+margin_bottom = 14.0
+max_value = 1.0
+value = 0.71
+
 [connection signal="item_selected" from="Main/Panel/Top_options/SerialThings/Port" to="." method="_on_Port_item_selected"]
 [connection signal="pressed" from="Main/Panel/Top_options/SerialThings/Port" to="." method="_on_Port_pressed"]
 [connection signal="item_selected" from="Main/Panel/Top_options/SerialThings/Baudoption" to="." method="_on_Baudoption_item_selected"]
 [connection signal="pressed" from="Main/Panel/Top_options/SerialThings/Baudoption" to="." method="_on_Baudoption_pressed"]
+[connection signal="item_activated" from="Main/Middle/TabContainer/Images/ItemList" to="." method="_on_ItemList_item_activated"]
+[connection signal="pressed" from="Main/Middle/TabContainer/Images/reloadFilesButton" to="." method="_on_reloadFilesButton_pressed"]
 [connection signal="pressed" from="Main/Graph/Panel/HBoxContainer/ClearButton" to="Main/Graph" method="_on_ClearButton_pressed"]
 [connection signal="timeout" from="Main/Graph/Timer" to="Main/Graph" method="_on_Timer_timeout"]
+[connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_confirmed"]

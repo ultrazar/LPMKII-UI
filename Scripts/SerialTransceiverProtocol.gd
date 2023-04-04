@@ -10,6 +10,7 @@ onready var PORT = SERCOMM.new()
 const baudrates = [300,600,1200,2400,4800,9600,14400,19200,28800,38400,57600,115200]
 var port
 var connected : bool = false
+var debugTerminal : RichTextLabel
 
 enum  {
 	PHASE_AIR,
@@ -20,8 +21,32 @@ var missionPhase = PHASE_AIR
 
 func _ready():
 	self.pause_mode = Node.PAUSE_MODE_PROCESS
-	
 
+enum {
+	PRINT_RX,
+	PRINT_TX,
+	PRINT_TELEMETRY
+}
+
+func printDebugData(text):
+	debugTerminal.text += Time.get_time_string_from_system() + " - " + text + "\n"
+
+func setMissionPhase(phase):
+	missionPhase = phase
+	var label = get_tree().current_scene.get_node("Main/Panel/Top_options/missionPhaseLabel")
+	debugTerminal = get_tree().current_scene.get_node("Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugData/RichTextLabel")
+	buffer = ""
+	if phase == PHASE_AIR:
+		label.text = "Mission phase 1 - Ascent and descense"
+		label.modulate = Color("68ff00")
+		printDebugData("TEL: PHASE CHANGED TO PHASE_AIR")
+	elif phase == PHASE_STATIONED:
+		label.text = "Mission phase 2 - Stationed command control"
+		label.modulate  = Color("00f9ff")
+		printDebugData("TEL: PHASE CHANGED TO PHASE_STATIONED")
+	else:
+		label.text = "ERROR"
+		label.modulate = Color("ff0000")
 
 func set_connected(value : bool):
 	connected = value
@@ -33,6 +58,15 @@ func set_connected(value : bool):
 		get_tree().paused = true
 		get_tree().current_scene.get_node("Main/Middle").modulate = Color("626262")
 		get_tree().current_scene.get_node("Main/Graph").modulate = Color("626262")
+
+func sendLine(line):
+	PORT.write(line + "\n")
+
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
+#-------------------------------- PHASE AIR CODE --------------------------------------
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
 
 func arduinohex_to_int(hex):
 	#  12345678 --> 0x78563412 
@@ -103,7 +137,9 @@ func update_vars(hex):
 
 func _physics_process(delta): 
 	if PORT.get_available()>0:
-		
+		if downloading:
+			readDownloadBytes()
+			return
 		if missionPhase == PHASE_AIR:
 			for i in range(PORT.get_available()):
 				var actual = PoolByteArray([PORT.read(true)]).hex_encode()
@@ -114,7 +150,113 @@ func _physics_process(delta):
 						print(spl[0].length())
 						update_vars(spl[0])
 					buffer = spl[1]
+		else: # PHASE_STATIONED DATA PROCESSING
+			for i in range(PORT.get_available()):
+				var actual = PORT.read() # Reads a char from the serial buffer
+				if typeof(actual) == TYPE_STRING:
+					if actual == "\n" or actual == "\r":
+						if buffer.length() != 0:
+							processStationedLine(buffer)
+						buffer = ""
+					else:
+						buffer += actual
+					
 
+
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
+#-------------------------------- PHASE STATIONED CODE --------------------------------
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
+
+var files = {} # "FileName": [FileSize,isDownloaded]
+var ItemListNode : ItemList
+var unknownIcon = preload("res://sprites/unknown.jpg")
+
+func reloadFilesItems():
+	ItemListNode.clear()
+	for i in files:
+		ItemListNode.add_item(i + (" (%s)" % str(files[i][0]) ),unknownIcon )
+
+var downloadWindowDialog : WindowDialog
+
+var downloading = false
+var goingToDownload = false
+var fileDownloading = ""
+var fileBytesLeft = 0
+var fileSize = 0
+var startDownloadTime = 0 # Unix time of the start of the download to know the dw speed
+var fileBuffer = PoolByteArray()
+
+const downloadingDialog = \
+"""Downloading %s file...
+
+%s/%s bytes received  %s bytes/second
+"""
+
+func updateDownloadDialog():
+	downloadWindowDialog.get_node("Label").text = downloadingDialog % [
+		fileDownloading, 
+		str(fileSize - fileBytesLeft), str(fileSize),
+		str( int((fileSize - fileBytesLeft) / (Time.get_unix_time_from_system() - startDownloadTime)) ) # speed
+	]
+	downloadWindowDialog.get_node("ProgressBar").value = 1 - (fileBytesLeft / fileSize)
+
+func downloadFile(fileName:String):
+	if not fileName in files:
+		return
+	goingToDownload = true
+	fileDownloading = fileName
+	downloadWindowDialog = get_tree().current_scene.get_node("WindowDialog")
+	sendLine("/D;" + fileName) # /D;<FileName>
+
+
+func processDownloadedFile():
+	var file : File = File.new()
+	file.open("user://" + fileDownloading,File.WRITE)
+	file.store_buffer(fileBuffer)
+	file.close()
+
+func readDownloadBytes():
+	for byte in range(PORT.get_available()):
+		fileBuffer.push_back(PORT.read(true))
+		fileBytesLeft -= 1
+	
+	if fileBytesLeft <= 0:
+		downloading = false
+		print("DOWNLOAD COMPLETED")
+		processDownloadedFile()
+	
+	updateDownloadDialog()
+
+func processStationedLine(line:String):
+	set_connected(true)
+	if line[0] == "#": # just a debug print
+		printDebugData(line.substr(1))
+
+	elif line.substr(0,2) == "R1": # PROCESS LS RESPONSE
+		files = {}
+		ItemListNode = get_tree().current_scene.get_node("Main/Middle/TabContainer/Images/ItemList")
+		var fileList = line.substr(2).split(";", false) # "R1<File1Name>,<File1Size>;<File2Name>,<File2Size>;..."
+		for i in fileList:
+			var prop = i.split(",")
+			if prop.size() == 2:
+				if not prop[0] in files:
+					files[prop[0]] = [int(prop[1]),false]
+		reloadFilesItems()
+		printDebugData(line.substr(0))
+
+	elif line.substr(0,2) == "DW": # START DOWNLOAD
+		
+		print("DOWNLOAD: " + line)
+		fileSize = int(line.substr(2))
+		fileBytesLeft = fileSize
+		startDownloadTime = Time.get_unix_time_from_system()
+		downloading = true
+		goingToDownload = false
+		fileBuffer = PoolByteArray()
+		downloadWindowDialog.popup()
+		updateDownloadDialog()
 
 func GetBaudrates():
 	return baudrates
