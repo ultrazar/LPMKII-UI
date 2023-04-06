@@ -3,8 +3,7 @@ extends Node
 # Manages the serial communication for the Transceiver and the LPMKII protocol
 
 
-
-const SERCOMM = preload("res://bin/GDsercomm.gdns")
+const SERCOMM = preload("res://bin/GDsercomm.gdns")# for linux: preload("res://addons/GDSerCommDock/bin/GDSerComm.gdns")
 onready var PORT = SERCOMM.new()
 
 const baudrates = [300,600,1200,2400,4800,9600,14400,19200,28800,38400,57600,115200]
@@ -152,7 +151,7 @@ func _physics_process(delta):
 					buffer = spl[1]
 		else: # PHASE_STATIONED DATA PROCESSING
 			for i in range(PORT.get_available()):
-				var actual = PORT.read() # Reads a char from the serial buffer
+				var actual = PoolByteArray([PORT.read(true)]).get_string_from_ascii() # Reads a char from the serial buffer
 				if typeof(actual) == TYPE_STRING:
 					if actual == "\n" or actual == "\r":
 						if buffer.length() != 0:
@@ -160,7 +159,8 @@ func _physics_process(delta):
 						buffer = ""
 					else:
 						buffer += actual
-					
+				else:
+					print("CHARACHTER LOST: " + str(actual))
 
 
 #--------------------------------------------------------------------------------------
@@ -176,16 +176,20 @@ var unknownIcon = preload("res://sprites/unknown.jpg")
 func reloadFilesItems():
 	ItemListNode.clear()
 	for i in files:
-		ItemListNode.add_item(i + (" (%s)" % str(files[i][0]) ),unknownIcon )
+		var icon = unknownIcon
+		if files[i].size() == 3: # If downloaded
+			icon = files[i][2]
+		ItemListNode.add_item(i + (" (%s)" % str(files[i][0]) ),icon )
+	get_tree().current_scene.get_node("Main/Middle/TabContainer/Files/noItemsAvailableLabel").visible = (files.size() == 0)
 
 var downloadWindowDialog : WindowDialog
 
 var downloading = false
 var goingToDownload = false
 var fileDownloading = ""
-var fileBytesLeft = 0
-var fileSize = 0
-var startDownloadTime = 0 # Unix time of the start of the download to know the dw speed
+var fileBytesLeft = 0.0
+var fileSize = 0.0
+var startDownloadTime = 0.0 # Unix time of the start of the download to know the dw speed
 var fileBuffer = PoolByteArray()
 
 const downloadingDialog = \
@@ -198,9 +202,11 @@ func updateDownloadDialog():
 	downloadWindowDialog.get_node("Label").text = downloadingDialog % [
 		fileDownloading, 
 		str(fileSize - fileBytesLeft), str(fileSize),
-		str( int((fileSize - fileBytesLeft) / (Time.get_unix_time_from_system() - startDownloadTime)) ) # speed
+		str( int((fileSize - fileBytesLeft) / ( 1 + (Time.get_unix_time_from_system() - startDownloadTime) ) ) ) # speed
 	]
-	downloadWindowDialog.get_node("ProgressBar").value = 1 - (fileBytesLeft / fileSize)
+	downloadWindowDialog.get_node("ProgressBar").max_value = fileSize
+	
+	downloadWindowDialog.get_node("ProgressBar").value = fileSize - fileBytesLeft
 
 func downloadFile(fileName:String):
 	if not fileName in files:
@@ -213,9 +219,24 @@ func downloadFile(fileName:String):
 
 func processDownloadedFile():
 	var file : File = File.new()
-	file.open("user://" + fileDownloading,File.WRITE)
+	var path = "user://" + fileDownloading
+	if (file.file_exists(path)):
+		var dir = Directory.new()
+		dir.remove(path)
+	file.open(path,File.WRITE)
 	file.store_buffer(fileBuffer)
 	file.close()
+	files[fileDownloading][1] = true
+	downloadWindowDialog.hide()
+	
+	if (fileDownloading.ends_with(".jpg")):
+		var image = Image.new()
+		image.load("user://" + fileDownloading)
+		var icon  = ImageTexture.new()
+		icon.create_from_image(image)
+		files[fileDownloading].append(icon)
+	reloadFilesItems()
+
 
 func readDownloadBytes():
 	for byte in range(PORT.get_available()):
@@ -235,9 +256,8 @@ func processStationedLine(line:String):
 		printDebugData(line.substr(1))
 
 	elif line.substr(0,2) == "R1": # PROCESS LS RESPONSE
-		files = {}
-		ItemListNode = get_tree().current_scene.get_node("Main/Middle/TabContainer/Images/ItemList")
-		var fileList = line.substr(2).split(";", false) # "R1<File1Name>,<File1Size>;<File2Name>,<File2Size>;..."
+		ItemListNode = get_tree().current_scene.get_node("Main/Middle/TabContainer/Files/ScrollContainer/ItemList")
+		var fileList = line.substr(3).split(";", false) # "R1:<File1Name>,<File1Size>;<File2Name>,<File2Size>;..."
 		for i in fileList:
 			var prop = i.split(",")
 			if prop.size() == 2:
@@ -266,7 +286,8 @@ func SelectBaudrate(baudrate):
 	set_physics_process(false)
 	PORT.close()
 	if port!=null:
-		print(PORT.open(port,int(baudrate),1000))
+		print(PORT.open(port,int(baudrate),1000,0,0,0))
+		PORT.flush()
 		print(port)
 		print(baudrate)
 	else:
