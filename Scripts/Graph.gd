@@ -17,7 +17,8 @@ const GraphParametersList = {
 	"temperature":null,
 	"pressure":null,
 	"humidity":null,
-	"GPS_altitude":null
+	"GPS_altitude":null,
+	"altitude":null
 }
 
 var FunctionsDict = {
@@ -94,12 +95,12 @@ var time = 0
 var plotted = false
 
 func _on_Timer_timeout():
+	
+	time = int(SerialTransceiverProtocol.LPMKII_DATA["time"] / 1000)#time += UPDATE_TIME
 	for i in GraphParametersList:
 		FunctionsDict[i].add_point(time,SerialTransceiverProtocol.LPMKII_DATA[i])
 		GraphParametersList[i].get_node("HBoxContainer/Data").text = str(SerialTransceiverProtocol.LPMKII_DATA[i])
-	
-	time += UPDATE_TIME
-	
+		
 	if (not plotted):
 		plotted = true
 		reloadGraph()
@@ -109,5 +110,10 @@ func _on_Timer_timeout():
 
 func _on_ClearButton_pressed():
 	reloadFunctions()
-	time = 0
+	#time = 0
 	plotted = false
+
+func _on_ExportButton_pressed():
+	var image = $"..".get_texture().get_data()
+	image.flip_y()
+	image.save_png(SessionData.sessionDirectoryPath + "/GraphData/Graph_" + str(time) + ".png")

@@ -1,9 +1,13 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://Theme/Themes/SteelCore/Default/steel-core.tres" type="Theme" id=1]
 [ext_resource path="res://Scenes/Chart.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Graph.gd" type="Script" id=3]
 [ext_resource path="res://icon.png" type="Texture" id=4]
+[ext_resource path="res://Scripts/SessionPanel.gd" type="Script" id=5]
+[ext_resource path="res://Scripts/CameraPanel.gd" type="Script" id=6]
+[ext_resource path="res://Scripts/LPMKII_Control.gd" type="Script" id=7]
+[ext_resource path="res://DeviceDataPanel.gd" type="Script" id=8]
 [ext_resource path="res://Scenes/3dPreview.tscn" type="PackedScene" id=9]
 [ext_resource path="res://Scripts/Main.gd" type="Script" id=10]
 
@@ -58,10 +62,6 @@ margin_top = 1.0
 margin_bottom = 1.0
 theme = ExtResource( 1 )
 script = ExtResource( 10 )
-
-[node name="DEBUG_TIMER" type="Timer" parent="."]
-wait_time = 10.0
-autostart = true
 
 [node name="Main" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -153,9 +153,11 @@ size_flags_horizontal = 3
 tab_align = 0
 
 [node name="Session config" type="HBoxContainer" parent="Main/Middle/LeftPanel"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 24.0
+script = ExtResource( 5 )
 
 [node name="Start" type="MarginContainer" parent="Main/Middle/LeftPanel/Session config"]
 margin_right = 20.0
@@ -183,7 +185,7 @@ margin_right = 105.0
 margin_bottom = 22.0
 text = "Session name: "
 
-[node name="LineEdit" type="LineEdit" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/name"]
+[node name="SessionName" type="LineEdit" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/name"]
 margin_left = 109.0
 margin_right = 376.0
 margin_bottom = 22.0
@@ -201,7 +203,7 @@ margin_right = 99.0
 margin_bottom = 22.0
 text = "Directory path"
 
-[node name="LineEdit" type="LineEdit" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/directory"]
+[node name="SessionDirectory" type="LineEdit" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/directory"]
 margin_left = 103.0
 margin_right = 376.0
 margin_bottom = 22.0
@@ -209,31 +211,42 @@ size_flags_horizontal = 3
 text = "/home/megazar/LPMKII/DevSession/"
 editable = false
 
-[node name="Middle" type="MarginContainer" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
+[node name="directory2" type="HBoxContainer" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
 margin_top = 66.0
 margin_right = 376.0
-margin_bottom = 76.0
-rect_min_size = Vector2( 0, 10 )
+margin_bottom = 88.0
 
-[node name="phaseLabel" type="Label" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
-margin_top = 80.0
+[node name="ChangeSessionButton" type="Button" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/directory2"]
+margin_right = 161.0
+margin_bottom = 22.0
+text = "Change current session"
+
+[node name="Middle" type="MarginContainer" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
+margin_top = 92.0
 margin_right = 376.0
 margin_bottom = 102.0
-text = "Session state: Phase 2 (configuration)"
+rect_min_size = Vector2( 0, 10 )
 
-[node name="phase" type="HBoxContainer" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
+[node name="stageLabel" type="Label" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
 margin_top = 106.0
 margin_right = 376.0
-margin_bottom = 156.0
+margin_bottom = 128.0
+text = "Session state: Stage 1 (Phase 2)"
 
-[node name="P1" type="Panel" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/phase"]
+[node name="stage" type="HBoxContainer" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
+margin_top = 132.0
+margin_right = 376.0
+margin_bottom = 182.0
+
+[node name="S1" type="Panel" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/stage"]
 margin_right = 33.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 0, 50 )
 size_flags_horizontal = 3
 custom_styles/panel = SubResource( 13 )
 
-[node name="P2" type="Panel" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/phase"]
+[node name="S2" type="Panel" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/stage"]
+modulate = Color( 0.501961, 0.501961, 0.501961, 1 )
 margin_left = 37.0
 margin_right = 204.0
 margin_bottom = 50.0
@@ -242,7 +255,8 @@ size_flags_horizontal = 3
 size_flags_stretch_ratio = 5.0
 custom_styles/panel = SubResource( 14 )
 
-[node name="P3" type="Panel" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/phase"]
+[node name="S3" type="Panel" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/stage"]
+modulate = Color( 0.52549, 0.52549, 0.52549, 1 )
 margin_left = 208.0
 margin_right = 376.0
 margin_bottom = 50.0
@@ -251,6 +265,17 @@ size_flags_horizontal = 3
 size_flags_stretch_ratio = 5.0
 custom_styles/panel = SubResource( 13 )
 
+[node name="ChangeStage" type="HBoxContainer" parent="Main/Middle/LeftPanel/Session config/VBoxContainer"]
+margin_top = 186.0
+margin_right = 376.0
+margin_bottom = 208.0
+
+[node name="ChangeStateButton" type="Button" parent="Main/Middle/LeftPanel/Session config/VBoxContainer/ChangeStage"]
+margin_right = 84.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 1, 0.301961, 0.301961, 1 )
+text = "Next phase"
+
 [node name="End" type="MarginContainer" parent="Main/Middle/LeftPanel/Session config"]
 margin_left = 404.0
 margin_right = 424.0
@@ -258,7 +283,6 @@ margin_bottom = 388.0
 rect_min_size = Vector2( 20, 0 )
 
 [node name="LPMKII Control" type="ScrollContainer" parent="Main/Middle/LeftPanel"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 24.0
@@ -267,11 +291,16 @@ size_flags_vertical = 3
 follow_focus = true
 
 [node name="CansatControl" type="VBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control"]
-margin_right = 424.0
-margin_bottom = 388.0
+margin_right = 412.0
+margin_bottom = 553.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/separation = 4
+script = ExtResource( 7 )
+
+[node name="LegsTimer" type="Timer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl"]
+wait_time = 50.0
+one_shot = true
 
 [node name="LegsPanel" type="Panel" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl"]
 margin_right = 412.0
@@ -296,7 +325,7 @@ margin_bottom = 22.0
 text = "LEGS STATE: CLOSED	"
 align = 1
 
-[node name="Button" type="Button" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/LegsPanel/VBoxContainer"]
+[node name="LegsButton" type="Button" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/LegsPanel/VBoxContainer"]
 modulate = Color( 1, 0.392157, 0.392157, 1 )
 margin_top = 26.0
 margin_right = 392.0
@@ -306,26 +335,27 @@ text = "OPEN LEGS"
 [node name="CameraPanel" type="PanelContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl"]
 margin_top = 74.0
 margin_right = 412.0
-margin_bottom = 270.0
+margin_bottom = 216.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/panel = SubResource( 10 )
+script = ExtResource( 6 )
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel"]
 margin_left = 1.0
 margin_top = 1.0
 margin_right = 411.0
-margin_bottom = 195.0
+margin_bottom = 141.0
 
 [node name="MarginStart" type="MarginContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer"]
 margin_right = 10.0
-margin_bottom = 194.0
+margin_bottom = 140.0
 rect_min_size = Vector2( 10, 0 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer"]
 margin_left = 14.0
 margin_right = 396.0
-margin_bottom = 194.0
+margin_bottom = 140.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/separation = 5
@@ -342,20 +372,10 @@ margin_bottom = 32.0
 text = "CAMERA CONTROL"
 align = 1
 
-[node name="EnableCamera" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+[node name="ServoParameter" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
 margin_top = 37.0
 margin_right = 382.0
-margin_bottom = 71.0
-
-[node name="CheckButton" type="CheckButton" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/EnableCamera"]
-margin_right = 204.0
-margin_bottom = 34.0
-text = "Enable camera module"
-
-[node name="ServoParameter" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
-margin_top = 76.0
-margin_right = 382.0
-margin_bottom = 98.0
+margin_bottom = 59.0
 
 [node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ServoParameter"]
 margin_right = 89.0
@@ -367,77 +387,168 @@ margin_left = 93.0
 margin_right = 382.0
 margin_bottom = 16.0
 size_flags_horizontal = 3
-value = 1.0
-editable = false
+min_value = 70.0
+max_value = 180.0
+value = 90.0
 
-[node name="ImageSize" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
-margin_top = 103.0
+[node name="TakePhoto" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+visible = false
+margin_top = 64.0
 margin_right = 382.0
-margin_bottom = 125.0
+margin_bottom = 86.0
 
-[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ImageSize"]
-margin_right = 82.0
+[node name="Label" type="Button" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/TakePhoto"]
+margin_right = 114.0
 margin_bottom = 22.0
-text = "Image size:"
+text = "Capture 1 photo"
 
-[node name="OptionButton" type="OptionButton" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ImageSize"]
-margin_left = 86.0
-margin_right = 219.0
+[node name="EnableCamera" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 64.0
+margin_right = 382.0
+margin_bottom = 98.0
+
+[node name="CheckButton" type="CheckButton" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/EnableCamera"]
+margin_right = 193.0
+margin_bottom = 34.0
+text = "Enable photo interval"
+
+[node name="CameraIntervalParameters" type="VBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+visible = false
+margin_top = 130.0
+margin_right = 382.0
+margin_bottom = 282.0
+
+[node name="I1ImageSize" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters"]
+margin_right = 382.0
 margin_bottom = 22.0
-disabled = true
-text = "QVGA 320 x 240"
 
-[node name="FPM" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I1ImageSize"]
+margin_right = 151.0
+margin_bottom = 22.0
+text = "Interval 1: Image size:"
+
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I1ImageSize"]
+margin_left = 155.0
+margin_right = 279.0
+margin_bottom = 22.0
+text = "SIZE_1280x720"
+
+[node name="I1CaptureRate" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters"]
+margin_top = 26.0
+margin_right = 382.0
+margin_bottom = 48.0
+
+[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I1CaptureRate"]
+margin_right = 220.0
+margin_bottom = 22.0
+text = "Interval 1: Capture rate (seconds)"
+
+[node name="SpinBox" type="SpinBox" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I1CaptureRate"]
+margin_left = 224.0
+margin_right = 300.0
+margin_bottom = 22.0
+min_value = 10.0
+max_value = 50000.0
+value = 30.0
+
+[node name="I1Compression" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters"]
+margin_top = 52.0
+margin_right = 382.0
+margin_bottom = 74.0
+
+[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I1Compression"]
+margin_right = 161.0
+margin_bottom = 22.0
+text = "Interval 1: Compression"
+
+[node name="Slider" type="HSlider" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I1Compression"]
+margin_left = 165.0
+margin_right = 382.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 63.0
+value = 10.0
+
+[node name="I2ImageSize" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters"]
+margin_top = 78.0
+margin_right = 382.0
+margin_bottom = 100.0
+
+[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I2ImageSize"]
+margin_right = 151.0
+margin_bottom = 22.0
+text = "Interval 2: Image size:"
+
+[node name="OptionButton" type="OptionButton" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I2ImageSize"]
+margin_left = 155.0
+margin_right = 271.0
+margin_bottom = 22.0
+text = "SIZE_640x480"
+
+[node name="I2CaptureRate" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters"]
+margin_top = 104.0
+margin_right = 382.0
+margin_bottom = 126.0
+
+[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I2CaptureRate"]
+margin_right = 220.0
+margin_bottom = 22.0
+text = "Interval 2: Capture rate (seconds)"
+
+[node name="SpinBox" type="SpinBox" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I2CaptureRate"]
+margin_left = 224.0
+margin_right = 300.0
+margin_bottom = 22.0
+min_value = 10.0
+max_value = 50000.0
+value = 15.0
+
+[node name="I2Compression" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters"]
 margin_top = 130.0
 margin_right = 382.0
 margin_bottom = 152.0
 
-[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/FPM"]
-margin_right = 86.0
+[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I2Compression"]
+margin_right = 161.0
 margin_bottom = 22.0
-text = "Capture rate"
+text = "Interval 2: Compression"
 
-[node name="OptionButton" type="OptionButton" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/FPM"]
-margin_left = 90.0
-margin_right = 141.0
-margin_bottom = 22.0
-disabled = true
-text = "60s"
-
-[node name="Exposure" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
-margin_top = 157.0
-margin_right = 382.0
-margin_bottom = 179.0
-
-[node name="Label" type="Label" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/Exposure"]
-margin_right = 66.0
-margin_bottom = 22.0
-text = "Exposure"
-
-[node name="HSlider" type="HSlider" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/Exposure"]
-margin_left = 70.0
+[node name="Slider" type="HSlider" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/CameraIntervalParameters/I2Compression"]
+margin_left = 165.0
 margin_right = 382.0
 margin_bottom = 16.0
 size_flags_horizontal = 3
-value = 50.0
-editable = false
+min_value = 1.0
+max_value = 63.0
+value = 30.0
+
+[node name="SendSettings" type="HBoxContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
+margin_top = 103.0
+margin_right = 382.0
+margin_bottom = 125.0
+
+[node name="SendSettingsButton" type="Button" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/SendSettings"]
+margin_right = 149.0
+margin_bottom = 22.0
+text = "Send camera settings"
 
 [node name="MarginStart2" type="MarginContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer"]
-margin_top = 184.0
+margin_top = 130.0
 margin_right = 382.0
-margin_bottom = 194.0
+margin_bottom = 140.0
 rect_min_size = Vector2( 10, 10 )
 
 [node name="MarginEnd" type="MarginContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer"]
 margin_left = 400.0
 margin_right = 410.0
-margin_bottom = 194.0
+margin_bottom = 140.0
 rect_min_size = Vector2( 10, 0 )
 
 [node name="Localization" type="PanelContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl"]
-margin_top = 274.0
+margin_top = 220.0
 margin_right = 412.0
-margin_bottom = 430.0
+margin_bottom = 376.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/panel = SubResource( 10 )
@@ -518,9 +629,9 @@ margin_bottom = 154.0
 rect_min_size = Vector2( 10, 0 )
 
 [node name="Transceiver" type="PanelContainer" parent="Main/Middle/LeftPanel/LPMKII Control/CansatControl"]
-margin_top = 434.0
+margin_top = 380.0
 margin_right = 412.0
-margin_bottom = 607.0
+margin_bottom = 553.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/panel = SubResource( 10 )
@@ -680,15 +791,16 @@ size_flags_vertical = 3
 
 [node name="StartMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
 margin_right = 20.0
-margin_bottom = 399.0
+margin_bottom = 388.0
 rect_min_size = Vector2( 20, 20 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
 margin_left = 24.0
 margin_right = 400.0
-margin_bottom = 399.0
+margin_bottom = 388.0
 size_flags_horizontal = 3
 custom_constants/separation = 10
+script = ExtResource( 8 )
 
 [node name="StartMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
 margin_right = 376.0
@@ -712,7 +824,11 @@ margin_right = 376.0
 margin_bottom = 28.0
 rect_min_size = Vector2( 0, 28 )
 size_flags_horizontal = 3
-value = 89.0
+min_value = 3.7
+max_value = 4.2
+value = 3.89
+allow_greater = true
+allow_lesser = true
 
 [node name="SolarPanels" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
 margin_top = 53.0
@@ -731,30 +847,40 @@ margin_right = 376.0
 margin_bottom = 28.0
 rect_min_size = Vector2( 0, 28 )
 size_flags_horizontal = 3
-value = 89.0
+min_value = 5.0
+max_value = 6.1
+value = 5.0
 
 [node name="GPS" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
 margin_top = 91.0
 margin_right = 376.0
-margin_bottom = 113.0
+margin_bottom = 115.0
 
 [node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS"]
+margin_top = 1.0
 margin_right = 120.0
-margin_bottom = 22.0
+margin_bottom = 23.0
 text = "GPS coordinates: "
 
-[node name="Coordinates" type="LineEdit" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS"]
+[node name="CheckBox" type="CheckBox" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS"]
 margin_left = 124.0
-margin_right = 288.0
-margin_bottom = 22.0
+margin_right = 148.0
+margin_bottom = 24.0
+pressed = true
+
+[node name="Coordinates" type="LineEdit" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS"]
+margin_left = 152.0
+margin_right = 316.0
+margin_bottom = 24.0
 text = "41.5910764,1.6106681"
 editable = false
 expand_to_text_length = true
 
 [node name="Communication" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
-margin_top = 123.0
+visible = false
+margin_top = 125.0
 margin_right = 376.0
-margin_bottom = 179.0
+margin_bottom = 181.0
 
 [node name="Label" type="Label" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/Communication"]
 margin_right = 248.0
@@ -763,30 +889,27 @@ text = "RX Packets Received: 48
 RX Transmission speed: 1843 Bytes/s
 TX Packets Sent: 0"
 
-[node name="DebugData" type="HBoxContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
-margin_top = 189.0
+[node name="DebugText" type="RichTextLabel" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
+margin_top = 125.0
 margin_right = 376.0
-margin_bottom = 369.0
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugData"]
-margin_right = 376.0
-margin_bottom = 180.0
+margin_bottom = 358.0
 rect_min_size = Vector2( 0, 180 )
 size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "DEBUG DATA:
 "
 scroll_following = true
 
 [node name="EndMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer"]
-margin_top = 379.0
+margin_top = 368.0
 margin_right = 376.0
-margin_bottom = 399.0
+margin_bottom = 388.0
 rect_min_size = Vector2( 20, 20 )
 
 [node name="EndMargin" type="MarginContainer" parent="Main/Middle/TabContainer/Device data/HBoxContainer"]
 margin_left = 404.0
 margin_right = 424.0
-margin_bottom = 399.0
+margin_bottom = 388.0
 rect_min_size = Vector2( 20, 20 )
 
 [node name="Files" type="Tabs" parent="Main/Middle/TabContainer"]
@@ -802,7 +925,6 @@ scroll_horizontal_enabled = false
 
 [node name="ItemList" type="ItemList" parent="Main/Middle/TabContainer/Files/ScrollContainer"]
 margin_right = 424.0
-margin_bottom = 8.0
 size_flags_horizontal = 3
 max_text_lines = 2
 auto_height = true
@@ -832,22 +954,33 @@ text = "No files available"
 align = 1
 valign = 1
 
-[node name="Graph" type="VBoxContainer" parent="Main"]
+[node name="Graph" type="ViewportContainer" parent="Main"]
 margin_top = 445.0
 margin_right = 1280.0
 margin_bottom = 720.0
+size_flags_vertical = 3
+stretch = true
+
+[node name="Viewport" type="Viewport" parent="Main/Graph"]
+size = Vector2( 1280, 300 )
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="Graph" type="VBoxContainer" parent="Main/Graph/Viewport"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 3 )
 
-[node name="Panel" type="Panel" parent="Main/Graph"]
+[node name="Panel" type="Panel" parent="Main/Graph/Viewport/Graph"]
 margin_right = 1280.0
 margin_bottom = 33.0
 rect_min_size = Vector2( 0, 33 )
 size_flags_horizontal = 3
 custom_styles/panel = SubResource( 4 )
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Main/Graph/Panel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Main/Graph/Viewport/Graph/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -857,20 +990,21 @@ margin_bottom = -5.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="ExportButton" type="Button" parent="Main/Graph/Panel/HBoxContainer"]
+[node name="ExportButton" type="Button" parent="Main/Graph/Viewport/Graph/Panel/HBoxContainer"]
 margin_right = 52.0
 margin_bottom = 23.0
 text = "Export"
 
-[node name="ClearButton" type="Button" parent="Main/Graph/Panel/HBoxContainer"]
+[node name="ClearButton" type="Button" parent="Main/Graph/Viewport/Graph/Panel/HBoxContainer"]
 margin_left = 56.0
 margin_right = 146.0
 margin_bottom = 23.0
 text = "CLEAR DATA"
 
-[node name="Chart" parent="Main/Graph" instance=ExtResource( 2 )]
+[node name="Chart" parent="Main/Graph/Viewport/Graph" instance=ExtResource( 2 )]
+margin_bottom = 300.0
 
-[node name="Timer" type="Timer" parent="Main/Graph"]
+[node name="Timer" type="Timer" parent="Main/Graph/Viewport/Graph"]
 wait_time = 0.5
 autostart = true
 
@@ -950,7 +1084,7 @@ size_flags_vertical = 3
 texture = ExtResource( 4 )
 
 [node name="EditSession" type="AcceptDialog" parent="."]
-visible = true
+pause_mode = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -968,28 +1102,32 @@ window_title = "Edit working session"
 [node name="HBoxContainer2" type="HBoxContainer" parent="EditSession"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -38.0
 size_flags_horizontal = 3
 
 [node name="Start" type="MarginContainer" parent="EditSession/HBoxContainer2"]
 margin_right = 20.0
-margin_bottom = 300.0
+margin_bottom = 254.0
 rect_min_size = Vector2( 20, 0 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="EditSession/HBoxContainer2"]
 margin_left = 24.0
-margin_right = 476.0
-margin_bottom = 300.0
+margin_right = 460.0
+margin_bottom = 254.0
 size_flags_horizontal = 3
 custom_constants/separation = 7
 
 [node name="Start" type="MarginContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
-margin_right = 452.0
+margin_right = 436.0
 margin_bottom = 20.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="HBoxContainer1" type="HBoxContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
 margin_top = 27.0
-margin_right = 452.0
+margin_right = 436.0
 margin_bottom = 49.0
 
 [node name="Label" type="Label" parent="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer1"]
@@ -997,27 +1135,10 @@ margin_right = 116.0
 margin_bottom = 22.0
 text = "Session settings:"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
-margin_top = 56.0
-margin_right = 452.0
-margin_bottom = 78.0
-
-[node name="Label" type="Label" parent="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer2"]
-margin_right = 50.0
-margin_bottom = 22.0
-text = "Name:"
-
-[node name="LineEdit" type="LineEdit" parent="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer2"]
-anchor_right = 1.0
-margin_left = 54.0
-margin_bottom = 22.0
-text = "Test session"
-expand_to_text_length = true
-
 [node name="HBoxContainer3" type="HBoxContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
-margin_top = 85.0
-margin_right = 452.0
-margin_bottom = 107.0
+margin_top = 56.0
+margin_right = 436.0
+margin_bottom = 78.0
 
 [node name="Button" type="Button" parent="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer3"]
 margin_right = 51.0
@@ -1026,23 +1147,72 @@ text = "Select"
 
 [node name="Label" type="Label" parent="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer3"]
 margin_left = 55.0
-margin_right = 397.0
+margin_right = 436.0
 margin_bottom = 22.0
+size_flags_horizontal = 3
 text = "Directory path: /home/megazar/LPMKII/DevSession/"
+autowrap = true
+max_lines_visible = 38
+
+[node name="SessionName" type="HBoxContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
+visible = false
+margin_top = 85.0
+margin_right = 452.0
+margin_bottom = 107.0
+
+[node name="Label" type="Label" parent="EditSession/HBoxContainer2/VBoxContainer/SessionName"]
+margin_right = 50.0
+margin_bottom = 22.0
+text = "Name:"
+
+[node name="LineEdit" type="LineEdit" parent="EditSession/HBoxContainer2/VBoxContainer/SessionName"]
+margin_left = 54.0
+margin_right = 150.0
+margin_bottom = 22.0
+text = "Test session"
+expand_to_text_length = true
+
+[node name="Message" type="HBoxContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
+margin_top = 85.0
+margin_right = 436.0
+margin_bottom = 124.0
+
+[node name="Label" type="Label" parent="EditSession/HBoxContainer2/VBoxContainer/Message"]
+margin_right = 436.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+text = "Select an empty directory to create a new session. Otherwise, select an existing session directory to resume."
+autowrap = true
+max_lines_visible = 38
+
+[node name="Alert" type="HBoxContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
+margin_top = 131.0
+margin_right = 436.0
+margin_bottom = 131.0
+
+[node name="Label" type="Label" parent="EditSession/HBoxContainer2/VBoxContainer/Alert"]
+visible = false
+margin_right = 436.0
+margin_bottom = 39.0
+size_flags_horizontal = 3
+text = "ALERT: LPMKII-UI needs to restart to change the session. LPMKII-UI will close after pressing Accept"
+autowrap = true
+max_lines_visible = 38
 
 [node name="End" type="MarginContainer" parent="EditSession/HBoxContainer2/VBoxContainer"]
-margin_top = 114.0
-margin_right = 452.0
-margin_bottom = 134.0
+margin_top = 138.0
+margin_right = 436.0
+margin_bottom = 158.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="End" type="MarginContainer" parent="EditSession/HBoxContainer2"]
-margin_left = 480.0
-margin_right = 500.0
-margin_bottom = 300.0
+margin_left = 464.0
+margin_right = 484.0
+margin_bottom = 254.0
 rect_min_size = Vector2( 20, 0 )
 
 [node name="FileDialog" type="FileDialog" parent="."]
+pause_mode = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -1051,7 +1221,7 @@ margin_top = -300.0
 margin_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
-window_title = "Select a directory"
+window_title = "Abrir un Directorio"
 resizable = true
 mode = 2
 access = 2
@@ -1060,11 +1230,26 @@ access = 2
 [connection signal="pressed" from="Main/Panel/Top_options/SerialThings/Port" to="." method="_on_Port_pressed"]
 [connection signal="item_selected" from="Main/Panel/Top_options/SerialThings/Baudoption" to="." method="_on_Baudoption_item_selected"]
 [connection signal="pressed" from="Main/Panel/Top_options/SerialThings/Baudoption" to="." method="_on_Baudoption_pressed"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/Session config/VBoxContainer/directory2/ChangeSessionButton" to="." method="_on_ChangeSessionButton_pressed"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/Session config/VBoxContainer/ChangeStage/ChangeStateButton" to="." method="_on_ChangeStateButton_pressed"]
+[connection signal="timeout" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/LegsTimer" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="_on_LegsTimer_timeout"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/LegsPanel/VBoxContainer/LegsButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="_on_LegsButton_pressed"]
+[connection signal="drag_ended" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/ServoParameter/HSlider" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="sendParams"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/EnableCamera/CheckButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel" method="_on_CheckButton_pressed"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel/HBoxContainer/VBoxContainer/SendSettings/SendSettingsButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl/CameraPanel" method="_on_SendSettingsButton_pressed"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/Localization/HBoxContainer/VBoxContainer/Buzzer/CheckButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="sendParams"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/Localization/HBoxContainer/VBoxContainer/LED/CheckButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="sendParams"]
+[connection signal="pressed" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/Localization/HBoxContainer/VBoxContainer/GPS/CheckButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="sendParams"]
+[connection signal="item_selected" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/Transceiver/HBoxContainer/VBoxContainer/TransmissionPower/OptionButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="sendParams"]
+[connection signal="item_selected" from="Main/Middle/LeftPanel/LPMKII Control/CansatControl/Transceiver/HBoxContainer/VBoxContainer/Baudrate/OptionButton" to="Main/Middle/LeftPanel/LPMKII Control/CansatControl" method="sendParams"]
+[connection signal="pressed" from="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/GPS/CheckBox" to="Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer" method="_on_GPS_CheckBox_pressed"]
 [connection signal="item_activated" from="Main/Middle/TabContainer/Files/ScrollContainer/ItemList" to="." method="_on_ItemList_item_activated"]
 [connection signal="pressed" from="Main/Middle/TabContainer/Files/reloadFilesButton" to="." method="_on_reloadFilesButton_pressed"]
-[connection signal="pressed" from="Main/Graph/Panel/HBoxContainer/ClearButton" to="Main/Graph" method="_on_ClearButton_pressed"]
-[connection signal="timeout" from="Main/Graph/Timer" to="Main/Graph" method="_on_Timer_timeout"]
+[connection signal="pressed" from="Main/Graph/Viewport/Graph/Panel/HBoxContainer/ExportButton" to="Main/Graph/Viewport/Graph" method="_on_ExportButton_pressed"]
+[connection signal="pressed" from="Main/Graph/Viewport/Graph/Panel/HBoxContainer/ClearButton" to="Main/Graph/Viewport/Graph" method="_on_ClearButton_pressed"]
+[connection signal="timeout" from="Main/Graph/Viewport/Graph/Timer" to="Main/Graph/Viewport/Graph" method="_on_Timer_timeout"]
 [connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_confirmed"]
-[connection signal="text_changed" from="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer2/LineEdit" to="." method="_on_EditSessionName_text_changed"]
+[connection signal="confirmed" from="EditSession" to="." method="_on_EditSession_confirmed"]
 [connection signal="pressed" from="EditSession/HBoxContainer2/VBoxContainer/HBoxContainer3/Button" to="FileDialog" method="popup"]
+[connection signal="text_changed" from="EditSession/HBoxContainer2/VBoxContainer/SessionName/LineEdit" to="." method="_on_EditSessionName_text_changed"]
 [connection signal="dir_selected" from="FileDialog" to="." method="_on_FileDialog_dir_selected"]

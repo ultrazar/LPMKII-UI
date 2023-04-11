@@ -28,12 +28,15 @@ enum {
 }
 
 func printDebugData(text):
-	debugTerminal.text += Time.get_time_string_from_system() + " - " + text + "\n"
+	var line = Time.get_time_string_from_system() + " - " + text + "\n"
+	debugTerminal.text += line
+	if (SessionData.debugDataLogFile):
+		SessionData.debugDataLogFile.store_string(line)
 
 func setMissionPhase(phase):
 	missionPhase = phase
 	var label = get_tree().current_scene.get_node("Main/Panel/Top_options/missionPhaseLabel")
-	debugTerminal = get_tree().current_scene.get_node("Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugData/RichTextLabel")
+	debugTerminal = get_tree().current_scene.get_node("Main/Middle/TabContainer/Device data/HBoxContainer/VBoxContainer/DebugText")
 	buffer = ""
 	if phase == PHASE_AIR:
 		label.text = "Mission phase 1 - Ascent and descense"
@@ -109,12 +112,14 @@ var LPMKII_DATA = {
 	"longitude":0.0,
 	"GPS_altitude":0.0,
 	"satellites":0.0,
-	"lipo_voltage":0.0
+	"lipo_voltage":0.0,
+	"altitude": 0.0
 }
 var buffer = ""
 
 func update_vars(hex):
 	set_connected(true)
+
 	var arr = []
 	if hex.length() != 72:
 		return
@@ -132,6 +137,20 @@ func update_vars(hex):
 	LPMKII_DATA["GPS_altitude"] = arr[6]
 	LPMKII_DATA["satellites"] = arr[7]
 	LPMKII_DATA["lipo_voltage"] = arr[8]/100.0
+	
+	# Calculate height from the pressure
+	var altitude = 44330 * (1.0 - pow((LPMKII_DATA["pressure"] / 100) / 1013.25, 0.1903));
+	LPMKII_DATA["altitude"] = int(altitude)
+	
+	printDebugData("New packet: " + str(LPMKII_DATA))
+	
+	var csvLine = PoolStringArray([])
+	for i in SessionData.csvParams:
+		csvLine.append(str(LPMKII_DATA[i]) )
+	SessionData.csvFile.store_line(csvLine.join(","))
+	
+	if SessionData.startTime == 0: # Define the startTime from the packet
+		SessionData.startTime = int(Time.get_unix_time_from_system() - LPMKII_DATA["time"])
 
 
 func _physics_process(delta): 
@@ -139,9 +158,12 @@ func _physics_process(delta):
 		if downloading:
 			readDownloadBytes()
 			return
+			
 		if missionPhase == PHASE_AIR:
 			for i in range(PORT.get_available()):
-				var actual = PoolByteArray([PORT.read(true)]).hex_encode()
+				var actual = PoolByteArray([PORT.read(true)])
+				SessionData.storeRawBytes(actual)
+				actual = actual.hex_encode()
 				buffer += actual
 				var spl = buffer.split("12345678")
 				if len(spl) == 2:
@@ -151,7 +173,9 @@ func _physics_process(delta):
 					buffer = spl[1]
 		else: # PHASE_STATIONED DATA PROCESSING
 			for i in range(PORT.get_available()):
-				var actual = PoolByteArray([PORT.read(true)]).get_string_from_ascii() # Reads a char from the serial buffer
+				var actual = PoolByteArray([PORT.read(true)]) # Reads a char from the serial buffer
+				SessionData.storeRawBytes(actual)
+				actual = actual.get_string_from_ascii()
 				if typeof(actual) == TYPE_STRING:
 					if actual == "\n" or actual == "\r":
 						if buffer.length() != 0:
@@ -218,12 +242,15 @@ func downloadFile(fileName:String):
 
 
 func processDownloadedFile():
+	"""
 	var file : File = File.new()
 	var path = "user://" + fileDownloading
 	if (file.file_exists(path)):
 		var dir = Directory.new()
 		dir.remove(path)
 	file.open(path,File.WRITE)
+	"""
+	var file : File = SessionData.getDownloadedFileWriter(fileDownloading)
 	file.store_buffer(fileBuffer)
 	file.close()
 	files[fileDownloading][1] = true
@@ -231,7 +258,7 @@ func processDownloadedFile():
 	
 	if (fileDownloading.ends_with(".jpg")):
 		var image = Image.new()
-		image.load("user://" + fileDownloading)
+		image.load(SessionData.getDownloadedFilePath(fileDownloading))
 		var icon  = ImageTexture.new()
 		icon.create_from_image(image)
 		files[fileDownloading].append(icon)
@@ -250,9 +277,75 @@ func readDownloadBytes():
 	
 	updateDownloadDialog()
 
+"""
+void sendCameraSettigns(    bool enable, 
+							unsigned short int interval_high, 
+							unsigned short int interval_low, 
+							unsigned int unix_time, 
+							imageSize camera_res_high,
+							imageSize camera_res_low,
+							int jpeg_quality_high,
+							int jpeg_quality_low) {
+
+	String result = String(enable) + ";" + 
+					String(interval_high) + ";" + 
+					String(interval_low) + ";" + 
+					String(unix_time) + ";" +
+					String(camera_res_high) + ";" + 
+					String(camera_res_low) + ";" + 
+					String(jpeg_quality_high) + ";" +
+					String(jpeg_quality_low);
+	sendLine("C" + result);
+
+	SYSTEMS     - SYNTAX: /S;<LEGS>;<SRV>;<BUZZER>;<LED;<GPS>;<FREQ>;<TX_PWR>
+				
+				bool LEGS
+				int SRV;
+				bool BUZZER;
+				bool LED;
+				bool GPS;
+				int FREQ;
+				int TX_PWR;
+
+				- DESCRIPTION: Set the systems configuration
+				- RESPONSE: !<ErrorNum>
+"""
+
+func sendSystemParams(
+	LEGS,SRV:int,BUZZER:bool,LED:bool,GPS:bool,FREQ:int,TX_PWR:int):
+	var result = "/S;" + \
+					str(int(LEGS)) + ";" + \
+					str(SRV) + ";" + \
+					str(int(BUZZER)) + ";" + \
+					str(int(LED)) + ";" + \
+					str(int(GPS)) + ";" + \
+					str(FREQ) + ";" + \
+					str(TX_PWR)
+	sendLine(result)
+	printDebugData("TEL: Sending system params: " + result)
+
+func sendCameraSettings(
+	interval_1, interval_2,
+	camera_res_1,camera_res_2,
+	compression_1, compression_2 ):
+	var result = "/C1;" + \
+					str(interval_1) + ";" + \
+					str(interval_2) + ";100;" + \
+					str(camera_res_1) + ";" + \
+					str(camera_res_2) + ";" + \
+					str(compression_1) + ";" + \
+					str(compression_2)
+	sendLine(result)
+	printDebugData("TEL: Sending camera settings: " + result)
+
 func processStationedLine(line:String):
 	set_connected(true)
-	if line[0] == "#": # just a debug print
+	print(line)
+	if "#STATIONED MODE ACTIVATED" in line:
+		SessionData.nextStage(SessionData.STAGE_3)
+		setMissionPhase(PHASE_STATIONED)
+	
+	elif line[0] == "#": # just a debug print
 		printDebugData(line.substr(1))
 
 	elif line.substr(0,2) == "R1": # PROCESS LS RESPONSE
@@ -277,12 +370,22 @@ func processStationedLine(line:String):
 		fileBuffer = PoolByteArray()
 		downloadWindowDialog.popup()
 		updateDownloadDialog()
+	elif line == "PHASE_AIR":
+		SessionData.nextStage(SessionData.STAGE_2)
+		setMissionPhase(PHASE_AIR)
+
+func requestNextStage():
+	missionPhase = PHASE_STATIONED # PHASE_STATIONED to read the ASCII response
+	if (SessionData.stage == SessionData.STAGE_1 || SessionData.stage == SessionData.STAGE_3 ):
+		sendLine("/A") # Request PHASE_AIR
+	else:
+		PORT.write("PHASE_STATIONED") # Request PHASE_STATIONED
 
 func GetBaudrates():
 	return baudrates
 
 func SelectBaudrate(baudrate):
-	set_connected(false)
+	#set_connected(false)
 	set_physics_process(false)
 	PORT.close()
 	if port!=null:
@@ -301,5 +404,5 @@ func GetPortsList(): #Updates the port list
 	return list
 
 func SelectPort(PortName):
-	set_connected(false)
+	#set_connected(false)
 	port=PortName
